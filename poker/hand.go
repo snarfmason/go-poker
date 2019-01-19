@@ -15,7 +15,7 @@ func (self Hand) String() string {
 }
 
 func (self Hand) RankString() string {
-	return "Not Implemented"
+	return RankString(-1)
 }
 
 func ParseHand(str string) Hand {
