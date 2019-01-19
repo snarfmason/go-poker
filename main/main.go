@@ -14,13 +14,14 @@ func main() {
 	for err == nil {
 		hands := hands(line)
 
-		winners := winners(hands)
+		winner := winner(hands)
+		winners := winners(winner, hands)
 
 		output := fmt.Sprintf(
 			"%v, Winner: %v, Rank: %v",
 			strings.TrimRight(line, "\n"),
 			strings.Join(winners, ", "),
-			"none") // winners[0].RankString()
+			winner.RankString())
 
 		fmt.Println(output)
 		line, err = reader.ReadString('\n')
@@ -37,8 +38,11 @@ func hands(line string) []poker.Hand {
 	return hands
 }
 
-func winners(hands []poker.Hand) []string {
+func winner(hands []poker.Hand) poker.Hand {
+	return hands[0]
+}
+
+func winners(winner poker.Hand, hands []poker.Hand) []string {
 	winners := make([]string, 0)
-	// just return the first hand for now
 	return append(winners, hands[0].String())
 }
