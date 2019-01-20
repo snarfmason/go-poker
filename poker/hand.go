@@ -64,7 +64,75 @@ func (self Hand) Value() [9]int {
 }
 
 func (self Hand) Rank() int {
-	return -1
+	switch {
+	case self.isStraightFlush():
+		return StraightFlush
+	case self.isFourOfAKind():
+		return FourOfAKind
+	case self.isFullHouse():
+		return FullHouse
+	case self.isFlush():
+		return Flush
+	case self.isStraight():
+		return Straight
+	case self.isThreeOfAKind():
+		return ThreeOfAKind
+	case self.isTwoPair():
+		return TwoPair
+	case self.isPair():
+		return Pair
+	}
+	return HighCard
+}
+
+func (self Hand) isPair() bool {
+	return len(self.rankSets()) == 4
+}
+
+func (self Hand) isTwoPair() bool {
+	return len(self.rankSets()) == 3 && self.mostCommonRankSize() == 2
+}
+
+func (self Hand) isThreeOfAKind() bool {
+	return len(self.rankSets()) == 3 && self.mostCommonRankSize() == 3
+}
+
+func (self Hand) isStraight() bool {
+	return self.isAllConsecutive() || self.isWraparoundStraight()
+}
+
+func (self Hand) isFlush() bool {
+	return self.isAllSameSuit()
+}
+
+func (self Hand) isFullHouse() bool {
+	return len(self.rankSets()) == 2 && self.mostCommonRankSize() == 3
+}
+
+func (self Hand) isFourOfAKind() bool {
+	return len(self.rankSets()) == 2 && self.mostCommonRankSize() == 4
+}
+
+func (self Hand) isStraightFlush() bool {
+	return self.isStraight() && self.isFlush()
+}
+
+func (self Hand) rankSets() []int {
+	var ranks [5]int
+	for i := 0; i < 5; i++ {
+		ranks[i] = self.Cards[i].Value()
+	}
+	sort.Ints(ranks[:])
+
+	// this part is ranks.uniq in Ruby
+	rankSets := make([]int, 1)
+	rankSets[0] = ranks[0]
+	for i := 1; i < 5; i++ {
+		if ranks[i] != ranks[i-1] {
+			rankSets = append(rankSets, ranks[i])
+		}
+	}
+	return rankSets
 }
 
 func (self Hand) rankSizes() map[int]int {
@@ -77,8 +145,34 @@ func (self Hand) rankSizes() map[int]int {
 	return frequencies
 }
 
+func (self Hand) mostCommonRankSize() int {
+	max := 0
+	for _, size := range self.rankSizes() {
+		if size > max {
+			max = size
+		}
+	}
+	return max
+}
+
 func (self Hand) isWraparoundStraight() bool {
-	return false
+	ranks := self.rankSets()
+	return len(ranks) == 5 && ranks[3] == 5 && ranks[4] == 14
+}
+
+func (self Hand) isAllConsecutive() bool {
+	ranks := self.rankSets()
+	return len(ranks) == 5 && ranks[4]-ranks[0] == 4
+}
+
+func (self Hand) isAllSameSuit() bool {
+	theSuit := self.Cards[0].Suit
+	for i := 1; i < 5; i++ {
+		if self.Cards[i].Suit != theSuit {
+			return false
+		}
+	}
+	return true
 }
 
 func ParseHand(str string) Hand {
@@ -97,6 +191,15 @@ func ParseHand(str string) Hand {
 }
 
 func BetterHand(h1, h2 Hand) Hand {
+	r1 := h1.Rank()
+	r2 := h2.Rank()
+	if r1 > r2 {
+		return h1
+	}
+	if r2 > r1 {
+		return h2
+	}
+
 	v1 := h1.Value()
 	v2 := h2.Value()
 	for i := 0; i < 9; i++ {
@@ -111,6 +214,12 @@ func BetterHand(h1, h2 Hand) Hand {
 }
 
 func EqualHands(h1, h2 Hand) bool {
+	r1 := h1.Rank()
+	r2 := h2.Rank()
+	if r1 != r2 {
+		return false
+	}
+
 	v1 := h1.Value()
 	v2 := h2.Value()
 	for i := 0; i < 9; i++ {
