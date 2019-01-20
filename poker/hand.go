@@ -21,9 +21,9 @@ func (self Hand) RankString() string {
 	return RankString(self.Rank())
 }
 
-func (self Hand) Value() [10]int {
+func (self Hand) Value() [9]int {
 	if self.isWraparoundStraight() {
-		return [10]int{0, 0, 0, 0, 5, 4, 3, 2, 1}
+		return [9]int{0, 0, 0, 0, 5, 4, 3, 2, 1}
 	}
 
 	var fourRank int
@@ -47,11 +47,11 @@ func (self Hand) Value() [10]int {
 	for i := len(pairs); i < 2; i++ {
 		pairs = append(pairs, 0)
 	}
-	for i := len(singles); i < 4; i++ {
+	for i := len(singles); i < 5; i++ {
 		singles = append(singles, 0)
 	}
 
-	return [10]int{
+	return [9]int{
 		fourRank,
 		threeRank,
 		pairs[1],
@@ -94,4 +94,29 @@ func ParseHand(str string) Hand {
 	}
 
 	return hand
+}
+
+func BetterHand(h1, h2 Hand) Hand {
+	v1 := h1.Value()
+	v2 := h2.Value()
+	for i := 0; i < 9; i++ {
+		if v1[i] > v2[i] {
+			return h1
+		}
+		if v2[i] > v1[i] {
+			return h2
+		}
+	}
+	return h1 // hands are equal if we got here
+}
+
+func EqualHands(h1, h2 Hand) bool {
+	v1 := h1.Value()
+	v2 := h2.Value()
+	for i := 0; i < 9; i++ {
+		if v1[i] != v2[i] {
+			return false
+		}
+	}
+	return true
 }

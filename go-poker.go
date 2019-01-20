@@ -39,10 +39,19 @@ func hands(line string) []poker.Hand {
 }
 
 func winner(hands []poker.Hand) poker.Hand {
-	return hands[0]
+	winner := hands[0]
+	for i := 1; i < len(hands); i++ {
+		winner = poker.BetterHand(winner, hands[i])
+	}
+	return winner
 }
 
 func winners(winner poker.Hand, hands []poker.Hand) []string {
 	winners := make([]string, 0)
-	return append(winners, hands[0].String())
+	for i := 0; i < len(hands); i++ {
+		if poker.EqualHands(winner, hands[i]) {
+			winners = append(winners, hands[i].String())
+		}
+	}
+	return winners
 }
