@@ -12,20 +12,24 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	line, err := reader.ReadString('\n')
 	for err == nil {
-		hands := hands(line)
-
-		winner := winner(hands)
-		winners := winners(winner, hands)
-
-		output := fmt.Sprintf(
-			"%v, Winner: %v, Rank: %v",
-			strings.TrimRight(line, "\n"),
-			strings.Join(winners, ", "),
-			winner.RankString())
-
-		fmt.Println(output)
+		fmt.Println(play(line))
 		line, err = reader.ReadString('\n')
 	}
+}
+
+func play(line string) string {
+	hands := hands(line)
+
+	winner := winner(hands)
+	winners := winners(winner, hands)
+
+	result := fmt.Sprintf(
+		"%v, Winner: %v, Rank: %v",
+		strings.TrimRight(line, "\n"),
+		strings.Join(winners, ", "),
+		winner.RankString())
+
+	return result
 }
 
 func hands(line string) []poker.Hand {
